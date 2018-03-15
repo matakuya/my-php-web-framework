@@ -161,6 +161,10 @@ abstract class Application
         $this->response->setContent($content);
     }
 
+    /**
+     * @param $controller_class
+     * @return Controller|bool
+     */
     protected function findController($controller_class)
     {
         if (!class_exists($controller_class)) {
