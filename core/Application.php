@@ -119,17 +119,24 @@ abstract class Application
         return $this->getRootDir() . '/web';
     }
 
+    /**
+     * @throws HttpNotFoundException
+     */
     public function run()
     {
-        $params = $this->router->resolve($this->request->getPathInfo());
-        if ($params === false) {
-        //    TODO: A
+        try {
+            $params = $this->router->resolve($this->request->getPathInfo());
+            if ($params === false) {
+                throw new HttpNotFoundException('No route found for '. $this->request->getPathInfo());
+            }
+
+            $controller = $params['controller'];
+            $action = $params['action'];
+
+            $this->runAction($controller, $action, $params);
+        } catch (HttpNotFoundException $e) {
+
         }
-
-        $controller = $params['controller'];
-        $action = $params['action'];
-
-        $this->runAction($controller, $action, $params);
 
         $this->response->send();
     }
@@ -138,6 +145,7 @@ abstract class Application
      * @param $controller_name
      * @param $action
      * @param array $params
+     * @throws HttpNotFoundException
      */
     public function runAction($controller_name, $action, $params = array())
     {
@@ -145,7 +153,7 @@ abstract class Application
 
         $controller = $this->findController($controller_class);
         if ($controller === false) {
-        //    TODO: B
+            throw new HttpNotFoundException($controller_class . ' controller is not found.');
         }
 
         $content = $controller->run($action, $params);
@@ -170,5 +178,25 @@ abstract class Application
         }
 
         return new $controller_class($this);
+    }
+
+    public function render404Page(HttpNotFoundException $e)
+    {
+        $this->response->setStatusCode(404, "Not Found");
+        $message = $this->isDebugMode() ? $e->getMessage() : 'Page not found';
+        $message = htmlspecialchars($message, ENT_QUOTES, "UTF-8");
+
+        $this->response->setContent(<<<EOF
+<html lang="ja">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>404</title>
+    </head>
+    <body>
+        {$message}
+    </body>
+</html>
+EOF
+        );
     }
 }
