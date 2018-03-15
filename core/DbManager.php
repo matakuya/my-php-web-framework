@@ -100,7 +100,7 @@ class DbManager
 
         return $this->repositories[$repository_name];
     }
-    
+
     function __destruct()
     {
         foreach ($this->repositories as $repository) {
