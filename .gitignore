@@ -13,7 +13,6 @@
 /web/songs
 
 # PhpStorm
-
 .idea/
 
 ## File-based project format:
@@ -21,6 +20,3 @@
 
 ## Backup files
 *~
-
-## SettingsBundle
-/src/Kiss/SettingsBundle/
